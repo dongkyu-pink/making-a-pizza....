@@ -2,7 +2,6 @@ import streamlit as st
 import streamlit.components.v1 as components
 import random
 import time
-from streamlit_autorefresh import st_autorefresh
 
 # 페이지 기본 설정
 st.set_page_config(page_title="화덕 피자 장인 게임", page_icon="🍕", layout="wide")
@@ -174,9 +173,6 @@ elif st.session_state.page == 'menu':
 # 페이지 3: 게임 플레이 화면
 # ---------------------------------------------------------
 elif st.session_state.page == 'game':
-    # 1초마다 실시간 화면 자동 타이머 갱신
-    st_autorefresh(interval=1000, key="gametimer")
-
     elapsed_game_time = time.time() - st.session_state.game_start_time
     remaining_game_time = max(0, 120 - int(elapsed_game_time))
 
@@ -207,48 +203,14 @@ elif st.session_state.page == 'game':
     col_left, col_right = st.columns([1, 1])
 
     with col_left:
-        st.subheader("🖐️ 재료 드래그 앤 드롭")
-        st.caption("아래 재료를 마우스로 끌어서 오른쪽에 떨어뜨리거나 클릭하여 선택하세요.")
+        st.subheader("🛒 재료 올리기")
+        st.caption("피자 위에 올릴 재료를 체크하세요.")
 
-        # HTML5 기반 마우스 드래그 앤 드롭 재료 선택기
-        ing_list_html = "".join([f"<span class='ing-item' draggable='true' ondragstart='drag(event)' onclick='addIng(\"{ing}\")'>+ {ing}</span>" for ing in ALL_INGREDIENTS])
-        
-        drag_html = f"""
-        <style>
-            .ing-container {{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }}
-            .ing-item {{
-                background-color: #f0f2f6; border: 1px solid #ccc; padding: 6px 12px;
-                border-radius: 16px; font-weight: bold; cursor: grab; user-select: none;
-            }}
-            .drop-zone {{
-                border: 2px dashed #ff4b4b; background-color: #fff5f5;
-                padding: 25px; border-radius: 12px; text-align: center;
-                font-weight: bold; color: #ff4b4b; margin-top: 10px;
-            }}
-        </style>
-        <div class="ing-container">
-            {ing_list_html}
-        </div>
-        <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
-            📥 여기에 재료를 마우스로 끌어다 놓으세요 (Drag & Drop)
-        </div>
-        <script>
-            function allowDrop(ev) {{ ev.preventDefault(); }}
-            function drag(ev) {{ ev.dataTransfer.setData("text", ev.target.innerText.replace("+ ", "")); }}
-            function drop(ev) {{
-                ev.preventDefault();
-                var data = ev.dataTransfer.getData("text");
-                window.parent.postMessage({{type: 'ADD_ING', value: data}}, '*');
-            }}
-            function addIng(name) {{
-                window.parent.postMessage({{type: 'ADD_ING', value: name}}, '*');
-            }}
-        </script>
-        """
-        components.html(drag_html, height=160)
-
-        # 수동 선택 지원용 대체 선택창
-        selected = st.multiselect("올려진 재료 목록 (여기서 직접 관리 가능):", ALL_INGREDIENTS, default=list(st.session_state.selected_ingredients))
+        selected = st.multiselect(
+            "선택된 재료 목록:", 
+            ALL_INGREDIENTS, 
+            default=list(st.session_state.selected_ingredients)
+        )
         st.session_state.selected_ingredients = set(selected)
 
     with col_right:
@@ -256,7 +218,7 @@ elif st.session_state.page == 'game':
         
         current_set = st.session_state.selected_ingredients
         
-        # 제출 판정용 백엔드 로직
+        # 백엔드 제출 판정용 로직
         matched_pizza = None
         for h in HIDDEN_RECIPES:
             if current_set == h['ingredients']:
@@ -275,7 +237,7 @@ elif st.session_state.page == 'game':
         else:
             final_pizza_name = "도우 (빈 피자)"
 
-        # 피자 이름을 굽기 전에 미리 노출하지 않도록 조치
+        # 피자 이름 노출 숨김 처리
         if st.session_state.baked:
             st.markdown(f"""
             <div class='oven-box'>
