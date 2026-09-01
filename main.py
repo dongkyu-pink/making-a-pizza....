@@ -377,4 +377,3 @@ elif st.session_state.page == 'result':
     if st.button("🔄 다시 시작 (로비로 돌아가기)", type="primary"):
         st.session_state.page = 'lobby'
         st.rerun()
-    
