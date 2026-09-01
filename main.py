@@ -88,14 +88,13 @@ if 'used_hidden' not in st.session_state:
 if 'high_score' not in st.session_state:
     st.session_state.high_score = 0
 
-# Helper Functions
 def get_turn_limit():
     if st.session_state.difficulty == '쉬움':
         return 20
     elif st.session_state.difficulty == '어려움':
         return 10
-    else: # 한계
-        return 5
+    else:  # 한계 난이도 (10초로 설정)
+        return 10
 
 def next_turn():
     st.session_state.current_order = random.choice(PIZZA_RECIPES)
@@ -128,14 +127,20 @@ if st.session_state.page == 'lobby':
 
     with col2:
         st.subheader("⚙️ 난이도 설정")
-        st.write(f"현재 난이도: **{st.session_state.difficulty}**")
-        diff = st.radio("난이도 변경", ["쉬움 (턴당 20초)", "어려움 (턴당 10초)", "한계 (턴당 5초)"], label_visibility="collapsed")
-        if "쉬움" in diff:
-            st.session_state.difficulty = "쉬움"
-        elif "어려움" in diff:
-            st.session_state.difficulty = "어려움"
+        # 라디오 버튼 선택값에 따라 즉시 난이도가 정확하게 매칭되도록 수정
+        selected_diff = st.radio(
+            "난이도 선택", 
+            ["쉬움", "어려움", "한계"], 
+            index=["쉬움", "어려움", "한계"].index(st.session_state.difficulty)
+        )
+        st.session_state.difficulty = selected_diff
+        
+        if selected_diff == "쉬움":
+            st.info("선택된 난이도: **쉬움** (턴당 20초 / 목표 50점)")
+        elif selected_diff == "어려움":
+            st.warning("선택된 난이도: **어려움** (턴당 10초 / 목표 100점)")
         else:
-            st.session_state.difficulty = "한계"
+            st.error("선택된 난이도: **한계** (턴당 10초 / 점수 한계 도전)")
 
     with col3:
         st.subheader("🔥 가게 열기")
@@ -157,7 +162,6 @@ elif st.session_state.page == 'menu':
 
     st.divider()
     
-    # 일반 피자 목록
     st.subheader("🍕 일반 피자 메뉴")
     cols = st.columns(2)
     for idx, pizza in enumerate(PIZZA_RECIPES):
@@ -166,7 +170,6 @@ elif st.session_state.page == 'menu':
             st.write(f"- 재료: {', '.join(pizza['ingredients'])}")
             st.write("---")
 
-    # 히든 피자 목록
     st.subheader("❓ 히든 피자 메뉴")
     h_col1, h_col2 = st.columns(2)
     with h_col1:
@@ -178,7 +181,6 @@ elif st.session_state.page == 'menu':
 # 페이지 3: 게임 플레이 화면
 # ---------------------------------------------------------
 elif st.session_state.page == 'game':
-    # 시간 계산
     elapsed_game_time = time.time() - st.session_state.game_start_time
     remaining_game_time = max(0, 120 - int(elapsed_game_time))
 
@@ -198,7 +200,6 @@ elif st.session_state.page == 'game':
         next_turn()
         st.rerun()
 
-    # 상단 상태바
     col_score, col_gtime, col_ttime = st.columns(3)
     col_score.metric("현재 점수", f"{st.session_state.score} 점")
     col_gtime.metric("남은 전체 시간", f"{remaining_game_time} 초")
@@ -206,18 +207,15 @@ elif st.session_state.page == 'game':
 
     st.divider()
 
-    # 주문 안내
     order = st.session_state.current_order
     st.markdown(f"<h2 style='text-align: center; color: #d9534f;'>🛎️ 주문: {order['name']}</h2>", unsafe_allow_html=True)
 
-    # 조리 공간 및 화덕
     col_left, col_right = st.columns([1, 1])
 
     with col_left:
         st.subheader("🛒 재료 선택")
         st.caption("클릭하여 피자 위에 재료를 올리거나 뺍니다.")
         
-        # 재료 그리드 버튼
         ing_cols = st.columns(3)
         for idx, ing in enumerate(ALL_INGREDIENTS):
             with ing_cols[idx % 3]:
@@ -233,11 +231,9 @@ elif st.session_state.page == 'game':
     with col_right:
         st.subheader("🔥 화덕 및 피자 판")
         
-        # 피자 상태 판정 (완성 피자 이름 확인)
         current_set = st.session_state.selected_ingredients
         pizza_name = "도우 (빈 피자)"
         
-        # 히든/일반 레시피 매칭
         matched_pizza = None
         for h in HIDDEN_RECIPES:
             if current_set == h['ingredients']:
@@ -254,7 +250,6 @@ elif st.session_state.page == 'game':
         elif len(current_set) > 0:
             pizza_name = "괴상한 피자"
 
-        # 화덕 구이 상태 표시
         if st.session_state.baked:
             st.markdown(f"""
             <div class='oven-box'>
@@ -278,7 +273,6 @@ elif st.session_state.page == 'game':
 
         st.write("---")
         
-        # 제출/버리기 액션 버튼
         btn_col1, btn_col2 = st.columns(2)
         
         with btn_col1:
@@ -286,8 +280,6 @@ elif st.session_state.page == 'game':
                 if not st.session_state.baked:
                     st.warning("화덕에 피자를 먼저 구워주세요!")
                 else:
-                    # 제출 판정
-                    # 1. 히든 피자 검사
                     hidden_triggered = False
                     for h in HIDDEN_RECIPES:
                         if current_set == h['ingredients']:
@@ -300,7 +292,6 @@ elif st.session_state.page == 'game':
                             hidden_triggered = True
                             break
                     
-                    # 2. 일반 제출 검사
                     if not hidden_triggered:
                         if current_set == order['ingredients']:
                             st.session_state.score += order['score']
@@ -318,10 +309,6 @@ elif st.session_state.page == 'game':
                 next_turn()
                 st.rerun()
 
-    # UI 자동 갱신을 위한 짧은 대기 후 다시 그리기
-    time.sleep(1)
-    st.rerun()
-
 # ---------------------------------------------------------
 # 페이지 4: 결과 화면
 # ---------------------------------------------------------
@@ -332,35 +319,36 @@ elif st.session_state.page == 'result':
     score = st.session_state.score
     diff = st.session_state.difficulty
 
-    # 최고 점수 갱신
     if score > st.session_state.high_score:
         st.session_state.high_score = score
 
-    st.subheader(f"최종 획득 점수: **{score}점**")
-
-    # 난이도별 결과 출력
+    # 1. 쉬움 난이도 결과
     if diff == '쉬움':
+        st.subheader(f"최종 획득 점수: **{score}점** (목표: 50점)")
         if score >= 50:
             st.balloons()
-            st.success("🎉 목표 달성 성공! 부자가 되어 돈이 펑펑 휘날립니다! 💵💶💷")
+            st.success("🎉 축하합니다! 목표를 달성했습니다! 부자가 되어 돈이 펑펑 휘날립니다! 💵💶💷")
             st.markdown("# 🤑 💰 💸 💰 💸")
         else:
             st.error("😭 파산했습니다... 피자가게 문을 닫습니다. 💸")
             st.markdown("# 💸 🧎‍♂️ (털썩...)")
 
+    # 2. 어려움 난이도 결과
     elif diff == '어려움':
+        st.subheader(f"최종 획득 점수: **{score}점** (목표: 100점)")
         if score >= 100:
             st.balloons()
-            st.success("🎉 대단합니다! 100점 이상 달성! 부자가 되어 돈이 펑펑 휘날립니다! 💵💶💷")
+            st.success("🎉 축하합니다! 100점 이상 달성! 부자가 되어 돈이 펑펑 휘날립니다! 💵💶💷")
             st.markdown("# 🤑 💰 💸 💰 💸")
         else:
             st.error("😭 파산했습니다... 목표 점수에 도달하지 못했습니다.")
             st.markdown("# 💸 🧎‍♂️ (털썩...)")
 
+    # 3. 한계 난이도 결과 (파산/부자 없이 정확한 축하 문구 출력)
     elif diff == '한계':
         st.balloons()
-        st.info(f"🏆 축하합니다! 당신은 **{score}점** 의 점수를 획득했습니다!")
-        st.write(f"현재까지 최고 기록: **{st.session_state.high_score}점**")
+        st.markdown(f"## 🎉 축하합니다! 당신은 **'{score}'** 의 점수를 획득했습니다!")
+        st.info(f"🏆 최고 점수 기록: **{st.session_state.high_score}점**")
 
     st.divider()
     if st.button("🔄 다시 시작 (로비로 돌아가기)", type="primary"):
