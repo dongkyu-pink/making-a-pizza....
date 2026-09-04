@@ -18,16 +18,24 @@ st.markdown("""
         font-family: 'Pretendard', sans-serif;
     }
     
-    /* 상단 대시보드 고정 (Sticky UI) 설정 */
-    .sticky-dashboard {
-        position: sticky;
-        top: 2.8rem;
-        z-index: 999;
+    /* 화면 맨 위에 상단 대시보드 강제 고정 (Fixed UI) */
+    .fixed-dashboard {
+        position: fixed;
+        top: 3.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-width: 1200px;
+        z-index: 999999;
         border-radius: 16px; 
-        padding: 18px; 
+        padding: 16px 24px; 
         background: linear-gradient(135deg, #FF7E5F 0%, #FEB47B 100%); 
-        box-shadow: 0px 6px 16px rgba(255, 126, 95, 0.3); 
-        margin-bottom: 25px;
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15); 
+    }
+    
+    /* 상단 바가 고정되면서 아래 콘텐츠를 가리지 않도록 공간 확보 */
+    .dashboard-space {
+        height: 90px;
     }
     
     .dashboard-text span, .dashboard-text div {
@@ -273,9 +281,9 @@ elif st.session_state.page == 'game':
     order = st.session_state.current_order
     target_score = get_target_score()
 
-    # 스크롤을 내려도 상단에 고정되는 대시보드 UI
+    # 화면에 절대 고정되는 대시보드 UI
     st.markdown(f"""
-    <div class="sticky-dashboard dashboard-text">
+    <div class="fixed-dashboard dashboard-text">
         <div style="display: flex; justify-content: space-around; align-items: center; font-size: 18px; font-weight: 800; color: #FFFFFF !important;">
             <div>🛎️ 주문: <span style="font-size: 22px; color: #FFF066 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">{order['name']}</span></div>
             <div>⏱️ 남은시간: <span style="font-size: 22px; color: #FFFFFF !important;">{remaining_game}초</span></div>
@@ -284,6 +292,7 @@ elif st.session_state.page == 'game':
             <div>🎯 목표: <span style="font-size: 22px; color: #FFFFFF !important;">{target_score}</span></div>
         </div>
     </div>
+    <div class="dashboard-space"></div>
     """, unsafe_allow_html=True)
 
     main_col1, main_col2 = st.columns(2)
