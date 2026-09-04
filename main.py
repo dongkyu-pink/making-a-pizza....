@@ -35,12 +35,17 @@ st.markdown("""
 # 데이터 정의
 # ---------------------------------------------------------
 INGREDIENT_ICONS = {
-    "파": "🧅", "버섯": "🍄", "페퍼로니": "🍕", "치즈": "🧀",
-    "케첩": "🥫", "감자": "🥔", "고구마": "🍠", "꿀": "🍯",
-    "사과": "🍎", "파인애플": "🍍", "복숭아": "🍑", "불고기": "🥩"
+    "케첩": "🥫", "치즈": "🧀", "파": "🧅", "페퍼로니": "🍕",
+    "버섯": "🍄", "불고기": "🥩", "감자": "🥔", "고구마": "🍠",
+    "사과": "🍎", "복숭아": "🍑", "파인애플": "🍍", "꿀": "🍯"
 }
 
-ALL_INGREDIENTS = list(INGREDIENT_ICONS.keys())
+# 지정하신 순서대로 재료 리스트 재정렬
+ALL_INGREDIENTS = [
+    "케첩", "치즈", "파", "페퍼로니", 
+    "버섯", "불고기", "감자", "고구마", 
+    "사과", "복숭아", "파인애플", "꿀"
+]
 
 PIZZA_RECIPES = [
     {"name": "파피자", "score": 3, "ingredients": {"파", "케첩", "치즈"}},
@@ -152,7 +157,7 @@ if st.session_state.page == 'lobby':
             st.rerun()
 
 # ---------------------------------------------------------
-# 페이지 2: 주문표 화면
+# 페이지 2: 주문표 화면 (히든 피자 표시 수정)
 # ---------------------------------------------------------
 elif st.session_state.page == 'menu':
     st.title("📜 피자 레시피 주문표")
@@ -161,11 +166,22 @@ elif st.session_state.page == 'menu':
         st.rerun()
     st.divider()
     
+    # 일반 피자 레시피
+    st.subheader("🍕 일반 피자 레시피")
     cols = st.columns(2)
     for idx, pizza in enumerate(PIZZA_RECIPES):
         with cols[idx % 2]:
             st.markdown(f"### **{pizza['name']}** (+{pizza['score']}점)")
             st.write(f"- 필요 재료: {', '.join(pizza['ingredients'])}")
+            st.write("---")
+
+    # 히든 피자 레시피 추가
+    st.subheader("✨ 히든 피자 레시피 (특별 점수!)")
+    h_cols = st.columns(2)
+    for idx, hidden in enumerate(HIDDEN_RECIPES):
+        with h_cols[idx % 2]:
+            st.markdown(f"### 🌟 **{hidden['name']}** (+{hidden['score']}점)")
+            st.write(f"- 필요 재료: {', '.join(hidden['ingredients'])}")
             st.write("---")
 
 # ---------------------------------------------------------
@@ -196,37 +212,12 @@ elif st.session_state.page == 'game':
     <div style="border: 2px solid #DD6B20; border-radius: 12px; padding: 12px; background: #FFF5F0; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-around; align-items: center; font-size: 18px; font-weight: bold; color: #2D3748;">
             <div>🛎️ 주문: <span style="font-size: 22px; color: #C53030;">{order['name']}</span></div>
-            <div>⏱️ 판 남은시간: <span id="game-time" style="font-size: 22px; color: #319795;">{remaining_game}</span>초</div>
-            <div>⏳ 턴 남은시간: <span id="turn-time" style="font-size: 22px; color: #DD6B20;">{remaining_turn}</span>초</div>
+            <div>⏱️ 판 남은시간: <span style="font-size: 22px; color: #319795;">{remaining_game}초</span></div>
+            <div>⏳ 턴 남은시간: <span style="font-size: 22px; color: #DD6B20;">{remaining_turn}초</span></div>
             <div>⭐ 현재점수: <span style="font-size: 22px; color: #D69E2E;">{st.session_state.score}점</span></div>
             <div>🎯 목표점수: <span style="font-size: 22px; color: #319795;">{target_score}</span></div>
         </div>
     </div>
-
-    <!-- JS로 1초마다 DOM만 직접 수정하여 깜빡임 제거 및 시간 진행 -->
-    <script>
-        if (window.timerInterval) clearInterval(window.timerInterval);
-        
-        let gTime = {remaining_game};
-        let tTime = {remaining_turn};
-        
-        window.timerInterval = setInterval(() => {{
-            gTime--;
-            tTime--;
-            
-            const gElem = parent.document.getElementById('game-time');
-            const tElem = parent.document.getElementById('turn-time');
-            
-            if(gElem) gElem.innerText = Math.max(0, gTime);
-            if(tElem) tElem.innerText = Math.max(0, tTime);
-
-            // 시간 초과 시 서버 통신(리런)
-            if (gTime <= 0 || tTime <= 0) {{
-                clearInterval(window.timerInterval);
-                window.parent.postMessage({{type: 'streamlit:render'}}, '*');
-            }}
-        }}, 1000);
-    </script>
     """, unsafe_allow_html=True)
 
     # 중앙 영역 (피자 도우 & 화덕 이미지)
@@ -315,6 +306,7 @@ elif st.session_state.page == 'game':
     with col_bottom_left:
         st.markdown("### 🛒 재료 선택")
         
+        # 새로 지정한 재료 순서대로 배치
         grid_cols = st.columns(4)
         for idx, ing in enumerate(ALL_INGREDIENTS):
             with grid_cols[idx % 4]:
