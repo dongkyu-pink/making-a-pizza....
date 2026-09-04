@@ -61,21 +61,23 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 이미지 URL 정의 (핀터레스트 직접 이미지 주소 반영)
+# 안전한 이미지 표시용 헬퍼 함수
 # ---------------------------------------------------------
-# 1. 로비 화면
-LOBBY_BANNER_URL = "https://i.pinimg.com/736x/21/53/b3/2153b3bdf48325dd67f33b1e36746fbd.jpg"
+def render_safe_image(image_source, caption=None, width=None):
+    """핀터레스트 등의 외부 이미지 차단 시 예외를 처리하고 표시합니다."""
+    try:
+        st.image(image_source, use_container_width=True if not width else False, width=width, caption=caption)
+    except Exception:
+        st.warning("⚠️ 이미지 링크 접근이 차단되었습니다. 로컬 파일명을 사용하거나 다른 이미지 주소를 입력해 주세요.")
 
-# 2. 플레이 화면 (피자 도우)
-PLAY_DOUGH_URL = "https://i.pinimg.com/736x/87/a2/27/87a227361956dd96bce78d8ca49d4be2.jpg"
-
-# 3. 화덕 이미지
+# 외부에서 안정적으로 제공되는 대체 백업 이미지 주소
+LOBBY_BANNER_URL = "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1000&auto=format&fit=crop&q=80"
+PLAY_DOUGH_URL = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&auto=format&fit=crop&q=80"
 OVEN_IMG_URL = "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500&auto=format&fit=crop&q=80"
 
-# 4. 결과 화면 이미지들
-BANKRUPT_IMG_URL = "https://i.pinimg.com/736x/55/b2/f0/55b2f0a1cbb0b213c32e9aa5f17180db.jpg"  # 파산
-RICH_IMG_URL = "https://i.pinimg.com/736x/09/b2/29/09b22971beed037be704e6c382103a8d.jpg"     # 부자
-LIMIT_SUCCESS_URL = "https://i.pinimg.com/736x/e4/2e/7e/e42e7e7a783701b7a2d398f8287e0766.jpg" # 한계모드 축하
+BANKRUPT_IMG_URL = "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&auto=format&fit=crop&q=80"
+RICH_IMG_URL = "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500&auto=format&fit=crop&q=80"
+LIMIT_SUCCESS_URL = "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=500&auto=format&fit=crop&q=80"
 
 # ---------------------------------------------------------
 # 데이터 정의
@@ -170,8 +172,7 @@ if st.session_state.page == 'lobby':
     st.markdown("<h1 style='text-align: center; font-size: 42px;'>🍕 화덕 피자 타이쿤</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #718096 !important; font-size: 18px;'>최고의 셰프가 되어 최고의 피자를 만들어보세요!</p>", unsafe_allow_html=True)
     
-    # 지정해주신 로비 이미지 적용
-    st.image(LOBBY_BANNER_URL, use_container_width=True)
+    render_safe_image(LOBBY_BANNER_URL)
     st.write("")
 
     col1, col2, col3 = st.columns(3)
@@ -269,7 +270,6 @@ elif st.session_state.page == 'game':
     order = st.session_state.current_order
     target_score = get_target_score()
 
-    # 상단 대시보드
     st.markdown(f"""
     <div class="dashboard-text" style="
         border-radius: 16px; 
@@ -288,7 +288,6 @@ elif st.session_state.page == 'game':
     </div>
     """, unsafe_allow_html=True)
 
-    # 중앙 영역 (지정 피자 이미지 위에 토핑 올리기)
     main_col1, main_col2 = st.columns(2)
 
     with main_col1:
@@ -327,7 +326,6 @@ elif st.session_state.page == 'game':
         </div>
         """, unsafe_allow_html=True)
 
-    # 하단 조작 및 재료 구역
     col_bottom_left, col_bottom_right = st.columns([2, 1])
 
     with col_bottom_right:
@@ -392,7 +390,7 @@ elif st.session_state.page == 'game':
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 페이지 4: 결과 화면 (파산/부자/한계 이미지 반영)
+# 페이지 4: 결과 화면
 # ---------------------------------------------------------
 elif st.session_state.page == 'result':
     st.markdown("<h1 style='text-align: center;'>🏁 영업 종료 - 결과 발표</h1>", unsafe_allow_html=True)
@@ -409,25 +407,25 @@ elif st.session_state.page == 'result':
     if diff == '쉬움':
         st.subheader(f"최종 점수: {score}점 / 목표 점수: 50점")
         if score >= 50:
-            st.image(RICH_IMG_URL, width=350)
+            render_safe_image(RICH_IMG_URL, width=350)
             st.balloons()
             st.success("🎉 목표 달성 성공! 대박 난 피자집 사장님이 되었습니다! 💵")
         else:
-            st.image(BANKRUPT_IMG_URL, width=350)
+            render_safe_image(BANKRUPT_IMG_URL, width=350)
             st.error("😭 목표 달성 실패... 가게가 파산했습니다.")
 
     elif diff == '어려움':
         st.subheader(f"최종 점수: {score}점 / 목표 점수: 100점")
         if score >= 100:
-            st.image(RICH_IMG_URL, width=350)
+            render_safe_image(RICH_IMG_URL, width=350)
             st.balloons()
             st.success("🎉 목표 달성 성공! 억만장자 피자 장인 등장! 💵")
         else:
-            st.image(BANKRUPT_IMG_URL, width=350)
+            render_safe_image(BANKRUPT_IMG_URL, width=350)
             st.error("😭 실패... 적자를 이겨내지 못하고 파산했습니다.")
 
     elif diff == '한계':
-        st.image(LIMIT_SUCCESS_URL, width=350)
+        render_safe_image(LIMIT_SUCCESS_URL, width=350)
         st.balloons()
         st.markdown(f"<h2>🔥 한계 도전 최고 점수: <span style='color:#E53E3E;'>{score}점</span></h2>", unsafe_allow_html=True)
         st.info("축하합니다! 당신의 한계를 뛰어넘었습니다! 🏆")
