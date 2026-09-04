@@ -63,10 +63,10 @@ st.markdown("""
 # ---------------------------------------------------------
 # 이미지 URL 정의
 # ---------------------------------------------------------
-# 1. 로비 화면 (현재 설정: 안 깨지는 고화질 URL)
+# 1. 로비 화면 (안정적인 고화질 URL)
 LOBBY_BANNER_URL = "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1000&auto=format&fit=crop&q=80"
 
-# 2. 플레이 화면 (전 방식: 이전 핀터레스트 원본 이미지)
+# 2. 플레이 화면 (이전 핀터레스트 원본 이미지)
 PLAY_DOUGH_URL = "https://i.pinimg.com/736x/87/a2/27/87a227361956dd96bce78d8ca49d4be2.jpg"
 
 # 3. 기타 배경 및 결과 화면 이미지
@@ -76,7 +76,7 @@ RICH_IMG_URL = "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500&
 LIMIT_SUCCESS_URL = "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=500&auto=format&fit=crop&q=80"
 
 # ---------------------------------------------------------
-# 데이터 정의
+# 데이터 정의 (모든 피자 점수 +5점 적용)
 # ---------------------------------------------------------
 INGREDIENT_ICONS = {
     "케첩": "🥫", "치즈": "🧀", "파": "🧅", "페퍼로니": "🍕",
@@ -91,27 +91,27 @@ ALL_INGREDIENTS = [
 ]
 
 PIZZA_RECIPES = [
-    {"name": "파피자", "score": 3, "ingredients": {"파", "케첩", "치즈"}},
-    {"name": "버섯피자", "score": 3, "ingredients": {"버섯", "케첩", "치즈"}},
-    {"name": "페퍼로니피자", "score": 3, "ingredients": {"페퍼로니", "케첩", "치즈"}},
-    {"name": "치즈피자", "score": 3, "ingredients": {"케첩", "치즈"}},
-    {"name": "피자", "score": 3, "ingredients": {"케첩"}},
-    {"name": "감자피자", "score": 3, "ingredients": {"감자", "케첩", "치즈"}},
-    {"name": "고구마피자", "score": 3, "ingredients": {"고구마", "케첩", "치즈"}},
-    {"name": "사과피자", "score": 3, "ingredients": {"사과", "케첩", "치즈"}},
-    {"name": "복숭아피자", "score": 3, "ingredients": {"복숭아", "케첩", "치즈"}},
-    {"name": "불고기버섯피자", "score": 4, "ingredients": {"불고기", "버섯", "케첩", "치즈"}},
-    {"name": "페퍼로니버섯피자", "score": 4, "ingredients": {"페퍼로니", "버섯", "케첩", "치즈"}},
-    {"name": "감자페퍼로니피자", "score": 5, "ingredients": {"치즈", "케첩", "페퍼로니", "감자"}},
-    {"name": "슈프림피자", "score": 5, "ingredients": {"케첩", "페퍼로니", "불고기", "버섯", "파"}},
-    {"name": "고르곤졸라피자", "score": 5, "ingredients": {"꿀", "치즈", "복숭아", "고구마", "사과", "파인애플"}},
-    {"name": "하와이안피자", "score": 5, "ingredients": {"치즈", "케첩", "파인애플", "페퍼로니"}},
-    {"name": "콤비네이션피자", "score": 6, "ingredients": {"치즈", "케첩", "페퍼로니", "불고기", "버섯", "파"}},
+    {"name": "파피자", "score": 8, "ingredients": {"파", "케첩", "치즈"}},
+    {"name": "버섯피자", "score": 8, "ingredients": {"버섯", "케첩", "치즈"}},
+    {"name": "페퍼로니피자", "score": 8, "ingredients": {"페퍼로니", "케첩", "치즈"}},
+    {"name": "치즈피자", "score": 8, "ingredients": {"케첩", "치즈"}},
+    {"name": "피자", "score": 8, "ingredients": {"케첩"}},
+    {"name": "감자피자", "score": 8, "ingredients": {"감자", "케첩", "치즈"}},
+    {"name": "고구마피자", "score": 8, "ingredients": {"고구마", "케첩", "치즈"}},
+    {"name": "사과피자", "score": 8, "ingredients": {"사과", "케첩", "치즈"}},
+    {"name": "복숭아피자", "score": 8, "ingredients": {"복숭아", "케첩", "치즈"}},
+    {"name": "불고기버섯피자", "score": 9, "ingredients": {"불고기", "버섯", "케첩", "치즈"}},
+    {"name": "페퍼로니버섯피자", "score": 9, "ingredients": {"페퍼로니", "버섯", "케첩", "치즈"}},
+    {"name": "감자페퍼로니피자", "score": 10, "ingredients": {"치즈", "케첩", "페퍼로니", "감자"}},
+    {"name": "슈프림피자", "score": 10, "ingredients": {"케첩", "페퍼로니", "불고기", "버섯", "파"}},
+    {"name": "고르곤졸라피자", "score": 10, "ingredients": {"꿀", "치즈", "복숭아", "고구마", "사과", "파인애플"}},
+    {"name": "하와이안피자", "score": 10, "ingredients": {"치즈", "케첩", "파인애플", "페퍼로니"}},
+    {"name": "콤비네이션피자", "score": 11, "ingredients": {"치즈", "케첩", "페퍼로니", "불고기", "버섯", "파"}},
 ]
 
 HIDDEN_RECIPES = [
-    {"name": "슈퍼 콤비네이션 피자", "score": 9, "ingredients": set(ALL_INGREDIENTS), "id": 1, "hint": "모든 재료가 전부 들어간 완벽한 피자!"},
-    {"name": "과일피자", "score": 7, "ingredients": {"사과", "복숭아", "파인애플"}, "id": 2, "hint": "달콤한 과일들만 모아 만든 피자!"}
+    {"name": "슈퍼 콤비네이션 피자", "score": 14, "ingredients": set(ALL_INGREDIENTS), "id": 1, "hint": "모든 재료가 전부 들어간 완벽한 피자!"},
+    {"name": "과일피자", "score": 12, "ingredients": {"사과", "복숭아", "파인애플"}, "id": 2, "hint": "달콤한 과일들만 모아 만든 피자!"}
 ]
 
 # ---------------------------------------------------------
