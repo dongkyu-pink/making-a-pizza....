@@ -1,12 +1,11 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import random
 import time
 
 # 페이지 기본 설정
 st.set_page_config(page_title="피자게임", page_icon="🍕", layout="wide")
 
-# CSS 전체 가독성 및 배경 개편
+# CSS 스타일링
 st.markdown("""
 <style>
     .stApp {
@@ -33,7 +32,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 데이터 및 재료 그래픽(이모지) 정의
+# 데이터 정의
 # ---------------------------------------------------------
 INGREDIENT_ICONS = {
     "파": "🧅", "버섯": "🍄", "페퍼로니": "🍕", "치즈": "🧀",
@@ -173,17 +172,8 @@ elif st.session_state.page == 'menu':
 # 페이지 3: 게임 플레이 화면
 # ---------------------------------------------------------
 elif st.session_state.page == 'game':
-    # 1초마다 실시간 백그라운드 리프레시 트리거 (JS 활용)
-    components.html(
-        """
-        <script>
-            setTimeout(function(){
-                window.parent.postMessage({type: 'streamlit:render'}, '*');
-            }, 1000);
-        </script>
-        """,
-        height=0
-    )
+    # 1초마다 무조건 화면을 갱신하는 타이머 트리거
+    time.sleep(1)
 
     elapsed_game = time.time() - st.session_state.game_start_time
     remaining_game = max(0, 120 - int(elapsed_game))
@@ -257,7 +247,7 @@ elif st.session_state.page == 'game':
 
     st.write("")
 
-    # 조작 버튼 및 재료 칸(그리드)
+    # 조작 버튼 및 재료 칸
     col_bottom_left, col_bottom_right = st.columns([2, 1])
 
     with col_bottom_right:
@@ -315,6 +305,9 @@ elif st.session_state.page == 'game':
                     else:
                         st.session_state.selected_ingredients.add(ing)
                     st.rerun()
+
+    # 1초마다 자동 리런 실행
+    st.rerun()
 
 # ---------------------------------------------------------
 # 페이지 4: 결과 화면
