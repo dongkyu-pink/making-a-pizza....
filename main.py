@@ -18,6 +18,18 @@ st.markdown("""
         font-family: 'Pretendard', sans-serif;
     }
     
+    /* 상단 대시보드 고정 (Sticky UI) 설정 */
+    .sticky-dashboard {
+        position: sticky;
+        top: 2.8rem;
+        z-index: 999;
+        border-radius: 16px; 
+        padding: 18px; 
+        background: linear-gradient(135deg, #FF7E5F 0%, #FEB47B 100%); 
+        box-shadow: 0px 6px 16px rgba(255, 126, 95, 0.3); 
+        margin-bottom: 25px;
+    }
+    
     .dashboard-text span, .dashboard-text div {
         color: inherit !important;
     }
@@ -63,20 +75,15 @@ st.markdown("""
 # ---------------------------------------------------------
 # 이미지 URL 정의
 # ---------------------------------------------------------
-# 1. 로비 화면 (안정적인 고화질 URL)
 LOBBY_BANNER_URL = "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1000&auto=format&fit=crop&q=80"
-
-# 2. 플레이 화면 (이전 핀터레스트 원본 이미지)
 PLAY_DOUGH_URL = "https://i.pinimg.com/736x/87/a2/27/87a227361956dd96bce78d8ca49d4be2.jpg"
-
-# 3. 기타 배경 및 결과 화면 이미지
 OVEN_IMG_URL = "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500&auto=format&fit=crop&q=80"
 BANKRUPT_IMG_URL = "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&auto=format&fit=crop&q=80"
 RICH_IMG_URL = "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500&auto=format&fit=crop&q=80"
 LIMIT_SUCCESS_URL = "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=500&auto=format&fit=crop&q=80"
 
 # ---------------------------------------------------------
-# 데이터 정의 (모든 피자 점수 +5점 적용)
+# 데이터 정의
 # ---------------------------------------------------------
 INGREDIENT_ICONS = {
     "케첩": "🥫", "치즈": "🧀", "파": "🧅", "페퍼로니": "🍕",
@@ -266,14 +273,9 @@ elif st.session_state.page == 'game':
     order = st.session_state.current_order
     target_score = get_target_score()
 
+    # 스크롤을 내려도 상단에 고정되는 대시보드 UI
     st.markdown(f"""
-    <div class="dashboard-text" style="
-        border-radius: 16px; 
-        padding: 18px; 
-        background: linear-gradient(135deg, #FF7E5F 0%, #FEB47B 100%); 
-        box-shadow: 0px 6px 16px rgba(255, 126, 95, 0.3); 
-        margin-bottom: 25px;
-    ">
+    <div class="sticky-dashboard dashboard-text">
         <div style="display: flex; justify-content: space-around; align-items: center; font-size: 18px; font-weight: 800; color: #FFFFFF !important;">
             <div>🛎️ 주문: <span style="font-size: 22px; color: #FFF066 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">{order['name']}</span></div>
             <div>⏱️ 남은시간: <span style="font-size: 22px; color: #FFFFFF !important;">{remaining_game}초</span></div>
