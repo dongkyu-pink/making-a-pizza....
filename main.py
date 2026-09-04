@@ -14,10 +14,15 @@ st.markdown("""
         color: #2D3748;
     }
     
-    /* 헤더 및 텍스트 컬러 강제 지정 */
-    h1, h2, h3, h4, h5, h6, p, span, div, label {
+    /* 기본 텍스트 컬러 */
+    h1, h2, h3, h4, h5, h6, p, label {
         color: #2D3748 !important;
         font-family: 'Pretendard', sans-serif;
+    }
+    
+    /* 대시보드 텍스트 컬러 강제 예외 처리 */
+    .dashboard-text span, .dashboard-text div {
+        color: inherit !important;
     }
     
     /* 버튼 공통 디자인 */
@@ -50,7 +55,7 @@ st.markdown("""
         margin-bottom: 15px;
     }
     
-    /* 히든 피자 전용 몽환적 카드 */
+    /* 히든 피자 전용 카드 */
     .hidden-card {
         background: linear-gradient(135deg, #FFF5F5 0%, #FED7D7 100%);
         border-radius: 16px;
@@ -100,7 +105,7 @@ HIDDEN_RECIPES = [
     {"name": "과일피자", "score": 7, "ingredients": {"사과", "복숭아", "파인애플"}, "id": 2, "hint": "달콤한 과일들만 모아 만든 피자!"}
 ]
 
-# 외부 고화질 이미지 URL
+# 이미지 URL
 LOBBY_BANNER_URL = "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1000&auto=format&fit=crop&q=80"
 DOUGH_IMG_URL = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&auto=format&fit=crop&q=80"
 OVEN_IMG_URL = "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500&auto=format&fit=crop&q=80"
@@ -159,7 +164,6 @@ if st.session_state.page == 'lobby':
     st.markdown("<h1 style='text-align: center; font-size: 42px;'>🍕 화덕 피자 타이쿤</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #718096 !important; font-size: 18px;'>최고의 셰프가 되어 최고의 피자를 만들어보세요!</p>", unsafe_allow_html=True)
     
-    # 메인 배너 이미지
     st.image(LOBBY_BANNER_URL, use_container_width=True)
     st.write("")
 
@@ -202,7 +206,7 @@ if st.session_state.page == 'lobby':
         st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 페이지 2: 주문표 화면 (히든 피자 재료 숨김)
+# 페이지 2: 주문표 화면
 # ---------------------------------------------------------
 elif st.session_state.page == 'menu':
     st.title("📜 피자 레시피 주문표")
@@ -211,7 +215,6 @@ elif st.session_state.page == 'menu':
         st.rerun()
     st.divider()
     
-    # 일반 피자 레시피
     st.subheader("🍕 일반 레시피")
     cols = st.columns(2)
     for idx, pizza in enumerate(PIZZA_RECIPES):
@@ -223,9 +226,8 @@ elif st.session_state.page == 'menu':
             </div>
             """, unsafe_allow_html=True)
 
-    # 히든 피자 레시피 (재료 숨김)
     st.write("")
-    st.subheader("✨ 든 피자 레시피 (비밀 레시피)")
+    st.subheader("✨ 히든 피자 레시피 (비밀 레시피)")
     h_cols = st.columns(2)
     for idx, hidden in enumerate(HIDDEN_RECIPES):
         with h_cols[idx % 2]:
@@ -260,20 +262,26 @@ elif st.session_state.page == 'game':
     order = st.session_state.current_order
     target_score = get_target_score()
 
-    # 고급스러운 상단 스코어보드
+    # 선명하게 개선된 상단 대시보드
     st.markdown(f"""
-    <div style="border-radius: 16px; padding: 16px; background: linear-gradient(90deg, #2D3748 0%, #1A202C 100%); color: white; margin-bottom: 25px; box-shadow: 0px 4px 12px rgba(0,0,0,0.15);">
-        <div style="display: flex; justify-content: space-around; align-items: center; font-size: 17px; font-weight: bold;">
-            <div>🛎️ 주문: <span style="font-size: 22px; color: #FEB2B2;">{order['name']}</span></div>
-            <div>⏱️ 남은시간: <span style="font-size: 22px; color: #81E6D9;">{remaining_game}s</span></div>
-            <div>⏳ 턴시간: <span style="font-size: 22px; color: #FBD38D;">{remaining_turn}s</span></div>
-            <div>⭐ 점수: <span style="font-size: 22px; color: #FAF089;">{st.session_state.score}점</span></div>
-            <div>🎯 목표: <span style="font-size: 22px; color: #E2E8F0;">{target_score}</span></div>
+    <div class="dashboard-text" style="
+        border-radius: 16px; 
+        padding: 18px; 
+        background: linear-gradient(135deg, #FF7E5F 0%, #FEB47B 100%); 
+        box-shadow: 0px 6px 16px rgba(255, 126, 95, 0.3); 
+        margin-bottom: 25px;
+    ">
+        <div style="display: flex; justify-content: space-around; align-items: center; font-size: 18px; font-weight: 800; color: #FFFFFF !important;">
+            <div>🛎️ 주문: <span style="font-size: 22px; color: #FFF066 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">{order['name']}</span></div>
+            <div>⏱️ 남은시간: <span style="font-size: 22px; color: #FFFFFF !important;">{remaining_game}초</span></div>
+            <div>⏳ 턴시간: <span style="font-size: 22px; color: #FFFFFF !important;">{remaining_turn}초</span></div>
+            <div>⭐ 점수: <span style="font-size: 22px; color: #FFF066 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">{st.session_state.score}점</span></div>
+            <div>🎯 목표: <span style="font-size: 22px; color: #FFFFFF !important;">{target_score}</span></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # 중앙 영역 (도우 & 화덕 그래픽 강화)
+    # 중앙 영역
     main_col1, main_col2 = st.columns(2)
 
     with main_col1:
@@ -290,7 +298,7 @@ elif st.session_state.page == 'game':
                 border: 6px solid #CBD5E0; margin: 0 auto; display: flex; flex-direction: column;
                 justify-content: center; align-items: center; box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
             ">
-                <div style="background: rgba(0,0,0,0.65); padding: 8px 16px; border-radius: 20px; color: white !important; font-size: 22px; max-width: 90%;">
+                <div style="background: rgba(0,0,0,0.7); padding: 8px 16px; border-radius: 20px; color: white !important; font-size: 22px; max-width: 90%;">
                     {ing_display}
                 </div>
             </div>
@@ -414,4 +422,3 @@ elif st.session_state.page == 'result':
     if st.button("🔄 로비로 돌아가기", use_container_width=True):
         st.session_state.page = 'lobby'
         st.rerun()
-    
