@@ -3,30 +3,60 @@ import random
 import time
 
 # 페이지 기본 설정
-st.set_page_config(page_title="피자게임", page_icon="🍕", layout="wide")
+st.set_page_config(page_title="화덕 피자 타이쿤", page_icon="🍕", layout="wide")
 
-# CSS 스타일링
+# 디테일한 커스텀 UI 스타일링
 st.markdown("""
 <style>
+    /* 전체 배경 및 폰트 */
     .stApp {
-        background-color: #FAF8F5;
+        background-color: #FFF9F2;
         color: #2D3748;
     }
+    
+    /* 헤더 및 텍스트 컬러 강제 지정 */
     h1, h2, h3, h4, h5, h6, p, span, div, label {
         color: #2D3748 !important;
+        font-family: 'Pretendard', sans-serif;
     }
+    
+    /* 버튼 공통 디자인 */
     .stButton>button {
         width: 100%;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 16px;
-        background-color: #ffffff;
-        border: 2px solid #CBD5E0;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 15px;
+        background-color: #FFFFFF;
+        border: 2px solid #E2E8F0;
         color: #2D3748 !important;
+        box-shadow: 0px 3px 6px rgba(0,0,0,0.04);
+        transition: all 0.2s ease-in-out;
+        padding: 8px 12px;
     }
     .stButton>button:hover {
-        border-color: #E53E3E;
-        color: #E53E3E !important;
+        border-color: #DD6B20;
+        color: #DD6B20 !important;
+        transform: translateY(-2px);
+        box-shadow: 0px 6px 12px rgba(221, 107, 32, 0.15);
+    }
+    
+    /* 카드형 컨테이너 */
+    .custom-card {
+        background-color: #FFFFFF;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #EDF2F7;
+        margin-bottom: 15px;
+    }
+    
+    /* 히든 피자 전용 몽환적 카드 */
+    .hidden-card {
+        background: linear-gradient(135deg, #FFF5F5 0%, #FED7D7 100%);
+        border-radius: 16px;
+        padding: 20px;
+        border: 2px dashed #E53E3E;
+        box-shadow: 0px 4px 12px rgba(229, 62, 62, 0.1);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -40,7 +70,6 @@ INGREDIENT_ICONS = {
     "사과": "🍎", "복숭아": "🍑", "파인애플": "🍍", "꿀": "🍯"
 }
 
-# 지정하신 순서대로 재료 리스트 재정렬
 ALL_INGREDIENTS = [
     "케첩", "치즈", "파", "페퍼로니", 
     "버섯", "불고기", "감자", "고구마", 
@@ -67,9 +96,14 @@ PIZZA_RECIPES = [
 ]
 
 HIDDEN_RECIPES = [
-    {"name": "슈퍼 콤비네이션 피자", "score": 9, "ingredients": set(ALL_INGREDIENTS), "id": 1},
-    {"name": "과일피자", "score": 7, "ingredients": {"사과", "복숭아", "파인애플"}, "id": 2}
+    {"name": "슈퍼 콤비네이션 피자", "score": 9, "ingredients": set(ALL_INGREDIENTS), "id": 1, "hint": "모든 재료가 전부 들어간 완벽한 피자!"},
+    {"name": "과일피자", "score": 7, "ingredients": {"사과", "복숭아", "파인애플"}, "id": 2, "hint": "달콤한 과일들만 모아 만든 피자!"}
 ]
+
+# 외부 고화질 이미지 URL
+LOBBY_BANNER_URL = "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1000&auto=format&fit=crop&q=80"
+DOUGH_IMG_URL = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&auto=format&fit=crop&q=80"
+OVEN_IMG_URL = "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500&auto=format&fit=crop&q=80"
 
 # ---------------------------------------------------------
 # 세션 상태 초기화
@@ -122,18 +156,26 @@ def start_game():
 # 페이지 1: 로비 화면
 # ---------------------------------------------------------
 if st.session_state.page == 'lobby':
-    st.title("🍕 피자게임")
-    st.divider()
+    st.markdown("<h1 style='text-align: center; font-size: 42px;'>🍕 화덕 피자 타이쿤</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #718096 !important; font-size: 18px;'>최고의 셰프가 되어 최고의 피자를 만들어보세요!</p>", unsafe_allow_html=True)
+    
+    # 메인 배너 이미지
+    st.image(LOBBY_BANNER_URL, use_container_width=True)
+    st.write("")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.subheader("📋 메뉴판 공부하기")
-        if st.button("주문표 열기"):
+        st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+        st.subheader("📋 레시피 공부")
+        st.write("다양한 피자 조합을 미리 숙지하세요!")
+        if st.button("📖 주문표 열기"):
             st.session_state.page = 'menu'
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
+        st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
         st.subheader("⚙️ 난이도 설정")
         selected_diff = st.radio(
             "난이도 선택", 
@@ -143,21 +185,24 @@ if st.session_state.page == 'lobby':
         st.session_state.difficulty = selected_diff
         
         if selected_diff == "쉬움":
-            st.info("선택된 난이도: **쉬움** (턴당 20초 / 목표 50점)")
+            st.info("💡 **쉬움**: 턴당 20초 / 목표 50점")
         elif selected_diff == "어려움":
-            st.warning("선택된 난이도: **어려움** (턴당 10초 / 목표 100점)")
+            st.warning("🔥 **어려움**: 턴당 10초 / 목표 100점")
         else:
-            st.error("선택된 난이도: **한계** (턴당 10초 / 점수 한계 도전)")
+            st.error("💀 **한계**: 턴당 10초 / 무제한 점수 도전")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col3:
-        st.subheader("🔥 게임 시작")
-        st.write("2분(120초) 동안 최고의 피자를 구워내세요!")
-        if st.button("🚀 게임 시작"):
+        st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+        st.subheader("🔥 영업 시작")
+        st.write("제한 시간 **120초** 동안 주문을 처리하세요.")
+        if st.button("🚀 게임 시작하기"):
             start_game()
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 페이지 2: 주문표 화면 (히든 피자 표시 수정)
+# 페이지 2: 주문표 화면 (히든 피자 재료 숨김)
 # ---------------------------------------------------------
 elif st.session_state.page == 'menu':
     st.title("📜 피자 레시피 주문표")
@@ -167,22 +212,30 @@ elif st.session_state.page == 'menu':
     st.divider()
     
     # 일반 피자 레시피
-    st.subheader("🍕 일반 피자 레시피")
+    st.subheader("🍕 일반 레시피")
     cols = st.columns(2)
     for idx, pizza in enumerate(PIZZA_RECIPES):
         with cols[idx % 2]:
-            st.markdown(f"### **{pizza['name']}** (+{pizza['score']}점)")
-            st.write(f"- 필요 재료: {', '.join(pizza['ingredients'])}")
-            st.write("---")
+            st.markdown(f"""
+            <div class='custom-card'>
+                <h3 style='margin-top:0;'>{pizza['name']} <span style='color:#DD6B20; font-size:16px;'>(+{pizza['score']}점)</span></h3>
+                <p><b>필요 재료:</b> {', '.join(pizza['ingredients'])}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-    # 히든 피자 레시피 추가
-    st.subheader("✨ 히든 피자 레시피 (특별 점수!)")
+    # 히든 피자 레시피 (재료 숨김)
+    st.write("")
+    st.subheader("✨ 든 피자 레시피 (비밀 레시피)")
     h_cols = st.columns(2)
     for idx, hidden in enumerate(HIDDEN_RECIPES):
         with h_cols[idx % 2]:
-            st.markdown(f"### 🌟 **{hidden['name']}** (+{hidden['score']}점)")
-            st.write(f"- 필요 재료: {', '.join(hidden['ingredients'])}")
-            st.write("---")
+            st.markdown(f"""
+            <div class='hidden-card'>
+                <h3 style='margin-top:0; color:#C53030 !important;'>🔒 {hidden['name']} <span style='font-size:16px;'>(+{hidden['score']}점)</span></h3>
+                <p><b>필요 재료:</b> <span style='color:#E53E3E; font-weight:bold;'>❓❓❓ (숨겨진 조합)</span></p>
+                <p style='font-size:13px; color:#718096 !important;'>💡 힌트: {hidden['hint']}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # 페이지 3: 게임 플레이 화면
@@ -207,64 +260,65 @@ elif st.session_state.page == 'game':
     order = st.session_state.current_order
     target_score = get_target_score()
 
-    # 상단 대시보드
+    # 고급스러운 상단 스코어보드
     st.markdown(f"""
-    <div style="border: 2px solid #DD6B20; border-radius: 12px; padding: 12px; background: #FFF5F0; margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-around; align-items: center; font-size: 18px; font-weight: bold; color: #2D3748;">
-            <div>🛎️ 주문: <span style="font-size: 22px; color: #C53030;">{order['name']}</span></div>
-            <div>⏱️ 판 남은시간: <span style="font-size: 22px; color: #319795;">{remaining_game}초</span></div>
-            <div>⏳ 턴 남은시간: <span style="font-size: 22px; color: #DD6B20;">{remaining_turn}초</span></div>
-            <div>⭐ 현재점수: <span style="font-size: 22px; color: #D69E2E;">{st.session_state.score}점</span></div>
-            <div>🎯 목표점수: <span style="font-size: 22px; color: #319795;">{target_score}</span></div>
+    <div style="border-radius: 16px; padding: 16px; background: linear-gradient(90deg, #2D3748 0%, #1A202C 100%); color: white; margin-bottom: 25px; box-shadow: 0px 4px 12px rgba(0,0,0,0.15);">
+        <div style="display: flex; justify-content: space-around; align-items: center; font-size: 17px; font-weight: bold;">
+            <div>🛎️ 주문: <span style="font-size: 22px; color: #FEB2B2;">{order['name']}</span></div>
+            <div>⏱️ 남은시간: <span style="font-size: 22px; color: #81E6D9;">{remaining_game}s</span></div>
+            <div>⏳ 턴시간: <span style="font-size: 22px; color: #FBD38D;">{remaining_turn}s</span></div>
+            <div>⭐ 점수: <span style="font-size: 22px; color: #FAF089;">{st.session_state.score}점</span></div>
+            <div>🎯 목표: <span style="font-size: 22px; color: #E2E8F0;">{target_score}</span></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # 중앙 영역 (피자 도우 & 화덕 이미지)
-    main_col1, main_col2 = st.columns([1, 1])
+    # 중앙 영역 (도우 & 화덕 그래픽 강화)
+    main_col1, main_col2 = st.columns(2)
 
     with main_col1:
         selected_list = list(st.session_state.selected_ingredients)
         ing_display = " ".join([INGREDIENT_ICONS[ing] for ing in selected_list]) if selected_list else "빈 도우"
-        baked_status = "♨️ 구이 완료!" if st.session_state.baked else "⚪ 재료 올리는 중"
+        baked_status = "♨️ 노릇노릇 구워짐!" if st.session_state.baked else "⚪ 토핑 올리는 중"
         
         st.markdown(f"""
-        <div style="text-align: center;">
+        <div style="text-align: center;" class="custom-card">
+            <h4 style="margin-bottom: 10px;">🥣 도우 상태</h4>
             <div style="
-                width: 260px; height: 260px; border-radius: 50%;
-                background-color: #FFF5E6; border: 8px solid #FBD38D;
-                margin: 0 auto; display: flex; flex-direction: column;
-                justify-content: center; align-items: center;
-                box-shadow: 0px 6px 12px rgba(0,0,0,0.1);
+                width: 220px; height: 220px; border-radius: 50%;
+                background-image: url('{DOUGH_IMG_URL}'); background-size: cover; background-position: center;
+                border: 6px solid #CBD5E0; margin: 0 auto; display: flex; flex-direction: column;
+                justify-content: center; align-items: center; box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
             ">
-                <h3 style="color: #C53030; margin: 0;">🍕 피자 도우</h3>
-                <div style="font-size: 32px; margin: 10px 0;">{ing_display}</div>
-                <small style="color: #718096; font-weight: bold;">{baked_status}</small>
+                <div style="background: rgba(0,0,0,0.65); padding: 8px 16px; border-radius: 20px; color: white !important; font-size: 22px; max-width: 90%;">
+                    {ing_display}
+                </div>
             </div>
+            <p style="margin-top: 12px; font-weight: bold; color: {'#E53E3E' if st.session_state.baked else '#319795'} !important;">{baked_status}</p>
         </div>
         """, unsafe_allow_html=True)
 
     with main_col2:
-        oven_img_url = "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500&auto=format&fit=crop&q=60"
         st.markdown(f"""
-        <div style="text-align: center;">
+        <div style="text-align: center;" class="custom-card">
+            <h4 style="margin-bottom: 10px;">🔥 이탈리아 화덕</h4>
             <div style="
-                width: 260px; height: 260px; border-radius: 50%;
-                overflow: hidden; margin: 0 auto; border: 8px solid #718096;
-                box-shadow: 0px 6px 12px rgba(0,0,0,0.15);
+                width: 220px; height: 220px; border-radius: 50%;
+                background-image: url('{OVEN_IMG_URL}'); background-size: cover; background-position: center;
+                border: 6px solid #DD6B20; margin: 0 auto; box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
             ">
-                <img src="{oven_img_url}" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
+            <p style="margin-top: 12px; font-weight: bold; color: #718096 !important;">섭씨 400도 유지 중</p>
         </div>
         """, unsafe_allow_html=True)
 
-    st.write("")
-
-    # 조작 버튼 및 재료 칸
+    # 하단 조작 및 재료 구역
     col_bottom_left, col_bottom_right = st.columns([2, 1])
 
     with col_bottom_right:
-        st.markdown("### ⚙️ 제출 및 조작")
+        st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+        st.markdown("### ⚙️ 조작하기")
+        
         if st.button("🔥 화덕에 굽기", use_container_width=True):
             st.session_state.baked = True
             st.toast("피자를 화덕에 구웠습니다!", icon="🔥")
@@ -272,7 +326,7 @@ elif st.session_state.page == 'game':
 
         b_c1, b_c2 = st.columns(2)
         with b_c1:
-            if st.button("📤 제출하기", use_container_width=True):
+            if st.button("📤 제출", use_container_width=True):
                 if not st.session_state.baked:
                     st.warning("화덕에 먼저 구워주세요!")
                 else:
@@ -283,7 +337,7 @@ elif st.session_state.page == 'game':
                             if not st.session_state.used_hidden[h['id']]:
                                 st.session_state.score += h['score']
                                 st.session_state.used_hidden[h['id']] = True
-                                st.toast(f"✨ 히든 피자 완성! +{h['score']}점!", icon="🎉")
+                                st.toast(f"✨ 히든 피자({h['name']}) 완성! +{h['score']}점!", icon="🎉")
                             hidden_triggered = True
                             break
                     
@@ -302,11 +356,12 @@ elif st.session_state.page == 'game':
                 st.toast("피자를 버렸습니다.")
                 next_turn()
                 st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col_bottom_left:
-        st.markdown("### 🛒 재료 선택")
+        st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+        st.markdown("### 🛒 재료 올리기")
         
-        # 새로 지정한 재료 순서대로 배치
         grid_cols = st.columns(4)
         for idx, ing in enumerate(ALL_INGREDIENTS):
             with grid_cols[idx % 4]:
@@ -319,12 +374,13 @@ elif st.session_state.page == 'game':
                     else:
                         st.session_state.selected_ingredients.add(ing)
                     st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # 페이지 4: 결과 화면
 # ---------------------------------------------------------
 elif st.session_state.page == 'result':
-    st.title("🏁 게임 종료 - 최종 성과")
+    st.markdown("<h1 style='text-align: center;'>🏁 영업 종료 - 결과 발표</h1>", unsafe_allow_html=True)
     st.divider()
 
     score = st.session_state.score
@@ -333,27 +389,29 @@ elif st.session_state.page == 'result':
     if score > st.session_state.high_score:
         st.session_state.high_score = score
 
+    st.markdown("<div class='custom-card' style='text-align:center;'>", unsafe_allow_html=True)
     if diff == '쉬움':
-        st.subheader(f"최종 획득 점수: **{score}점** (목표 50점)")
+        st.subheader(f"최종 점수: {score}점 / 목표 점수: 50점")
         if score >= 50:
             st.balloons()
-            st.success("🎉 목표 달성 성공! 💵💶💷")
+            st.success("🎉 목표 달성 성공! 훌륭한 피자 셰프시네요!")
         else:
-            st.error("😭 목표 달성 실패...")
+            st.error("😭 아쉽게도 목표 점수에 도달하지 못했습니다.")
 
     elif diff == '어려움':
-        st.subheader(f"최종 획득 점수: **{score}점** (목표 100점)")
+        st.subheader(f"최종 점수: {score}점 / 목표 점수: 100점")
         if score >= 100:
             st.balloons()
-            st.success("🎉 목표 달성 성공! 100점 돌파! 💵💶💷")
+            st.success("🎉 목표 달성 성공! 전설의 피자 장인 인정!")
         else:
-            st.error("😭 목표 점수에 도달하지 못했습니다.")
+            st.error("😭 목표 달성 실패! 조금 더 빨리 움직여야 합니다.")
 
     elif diff == '한계':
         st.balloons()
-        st.markdown(f"## 🎉 당신의 최고 기록: **'{score}'점**")
+        st.markdown(f"<h2>🔥 한계 도전 최고 점수: <span style='color:#E53E3E;'>{score}점</span></h2>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.divider()
-    if st.button("🔄 다시 시작 (로비로 돌아가기)"):
+    if st.button("🔄 로비로 돌아가기", use_container_width=True):
         st.session_state.page = 'lobby'
         st.rerun()
+    
