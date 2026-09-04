@@ -172,9 +172,6 @@ elif st.session_state.page == 'menu':
 # 페이지 3: 게임 플레이 화면
 # ---------------------------------------------------------
 elif st.session_state.page == 'game':
-    # 1초마다 무조건 화면을 갱신하는 타이머 트리거
-    time.sleep(1)
-
     elapsed_game = time.time() - st.session_state.game_start_time
     remaining_game = max(0, 120 - int(elapsed_game))
 
@@ -199,12 +196,37 @@ elif st.session_state.page == 'game':
     <div style="border: 2px solid #DD6B20; border-radius: 12px; padding: 12px; background: #FFF5F0; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-around; align-items: center; font-size: 18px; font-weight: bold; color: #2D3748;">
             <div>🛎️ 주문: <span style="font-size: 22px; color: #C53030;">{order['name']}</span></div>
-            <div>⏱️ 판 남은시간: <span style="font-size: 22px; color: #319795;">{remaining_game}초</span></div>
-            <div>⏳ 턴 남은시간: <span style="font-size: 22px; color: #DD6B20;">{remaining_turn}초</span></div>
+            <div>⏱️ 판 남은시간: <span id="game-time" style="font-size: 22px; color: #319795;">{remaining_game}</span>초</div>
+            <div>⏳ 턴 남은시간: <span id="turn-time" style="font-size: 22px; color: #DD6B20;">{remaining_turn}</span>초</div>
             <div>⭐ 현재점수: <span style="font-size: 22px; color: #D69E2E;">{st.session_state.score}점</span></div>
             <div>🎯 목표점수: <span style="font-size: 22px; color: #319795;">{target_score}</span></div>
         </div>
     </div>
+
+    <!-- JS로 1초마다 DOM만 직접 수정하여 깜빡임 제거 및 시간 진행 -->
+    <script>
+        if (window.timerInterval) clearInterval(window.timerInterval);
+        
+        let gTime = {remaining_game};
+        let tTime = {remaining_turn};
+        
+        window.timerInterval = setInterval(() => {{
+            gTime--;
+            tTime--;
+            
+            const gElem = parent.document.getElementById('game-time');
+            const tElem = parent.document.getElementById('turn-time');
+            
+            if(gElem) gElem.innerText = Math.max(0, gTime);
+            if(tElem) tElem.innerText = Math.max(0, tTime);
+
+            // 시간 초과 시 서버 통신(리런)
+            if (gTime <= 0 || tTime <= 0) {{
+                clearInterval(window.timerInterval);
+                window.parent.postMessage({{type: 'streamlit:render'}}, '*');
+            }}
+        }}, 1000);
+    </script>
     """, unsafe_allow_html=True)
 
     # 중앙 영역 (피자 도우 & 화덕 이미지)
@@ -305,9 +327,6 @@ elif st.session_state.page == 'game':
                     else:
                         st.session_state.selected_ingredients.add(ing)
                     st.rerun()
-
-    # 1초마다 자동 리런 실행
-    st.rerun()
 
 # ---------------------------------------------------------
 # 페이지 4: 결과 화면
