@@ -1,11 +1,12 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import random
 import time
 
 # 페이지 기본 설정
 st.set_page_config(page_title="피자게임", page_icon="🍕", layout="wide")
 
-# CSS 전체 가독성 및 배경 개편 (밝은 베이지 톤 & 뚜렷한 검은색 글씨)
+# CSS 전체 가독성 및 배경 개편
 st.markdown("""
 <style>
     .stApp {
@@ -172,6 +173,18 @@ elif st.session_state.page == 'menu':
 # 페이지 3: 게임 플레이 화면
 # ---------------------------------------------------------
 elif st.session_state.page == 'game':
+    # 1초마다 실시간 백그라운드 리프레시 트리거 (JS 활용)
+    components.html(
+        """
+        <script>
+            setTimeout(function(){
+                window.parent.postMessage({type: 'streamlit:render'}, '*');
+            }, 1000);
+        </script>
+        """,
+        height=0
+    )
+
     elapsed_game = time.time() - st.session_state.game_start_time
     remaining_game = max(0, 120 - int(elapsed_game))
 
@@ -203,14 +216,6 @@ elif st.session_state.page == 'game':
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-    @st.fragment(run_every=1)
-    def update_timer():
-        cur_g = max(0, 120 - int(time.time() - st.session_state.game_start_time))
-        cur_t = max(0, get_turn_limit() - int(time.time() - st.session_state.turn_start_time))
-        if cur_g <= 0 or cur_t <= 0:
-            st.rerun()
-    update_timer()
 
     # 중앙 영역 (피자 도우 & 화덕 이미지)
     main_col1, main_col2 = st.columns([1, 1])
